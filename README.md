@@ -6,7 +6,7 @@ Quick trial a.k.a practice to learn the power of Zenoh for D3-AI :D
 
 - Ubuntu 22.04 (base image)
 - Zenoh v0.10.1-rc
-- Rust 1.75.0
+- Rust 1.77.1
 - Python 3.10.12
 - Erlang/OTP 26.1.1
 - Elixir 1.15.7-otp-26
@@ -70,9 +70,11 @@ If the first build fails in Docker env, just try it again ;(
 
 - Run
 ```
+cd zenoh_native
 ./target/debug/pub
 ```
 ```
+cd zenoh_native
 ./target/debug/sub
 ```
 
@@ -106,10 +108,12 @@ cmake --build .
 
 - Run
 ```
-./pub
+cd zenoh_c
+./build/pub
 ```
 ```
-./sub
+cd zenoh_c
+./build/sub
 ```
 
 ### zenoh_elixir
@@ -125,10 +129,12 @@ mix compile
 
 - Run
 ```
+cd zenoh_elixir
 iex -S mix
 iex()> ZenohElixir.Pub.main
 ```
 ```
+cd zenoh_elixir
 iex -S mix
 iex()> ZenohElixir.Sub.main
 ```
