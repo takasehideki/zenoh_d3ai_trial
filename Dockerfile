@@ -30,6 +30,19 @@ RUN apt-get update && apt-get install -y \
 RUN pip install -U pip && \
   pip install --no-cache-dir eclipse-zenoh
 
+# Install Zenoh-c
+RUN apt-get update && apt-get install -y \
+	cmake git \
+	&& apt-get clean \
+	&& rm -rf /var/lib/apt/lists/*
+RUN git clone https://github.com/eclipse-zenoh/zenoh-c.git /usr/local/src/zenoh-c \
+	&& mkdir -p /usr/local/src/zenoh-c/build \
+	&& cd /usr/local/src/zenoh-c/build \
+	&& cmake .. \
+	&& PATH=$PATH:/root/.cargo/bin cmake --build . --config Release \
+	&& cmake --build . --target install \
+	&& rm -rf /usr/local/src/zenoh-c
+
 # Install Erlang
 RUN apt-get update && apt-get install -y \
   autoconf m4 libncurses5-dev libwxgtk3.0-gtk3-dev libgl1-mesa-dev libglu1-mesa-dev libpng-dev libssh-dev unixodbc-dev xsltproc fop libxml2-utils libncurses-dev openjdk-11-jdk \

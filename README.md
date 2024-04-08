@@ -91,6 +91,27 @@ cd zenoh_python
 python3 sub.py
 ```
 
+### zenoh_c
+
+Zenoh nodes (natively) implemented in C.  
+The Source code is referred to https://ar-ray.hatenablog.com/entry/2023/05/04/121035 and https://github.com/eclipse-zenoh/zenoh-c/tree/main/examples
+
+- Build
+```
+cd zenoh_c
+mkdir build && cd build
+cmake ..
+cmake --build .
+```
+
+- Run
+```
+./pub
+```
+```
+./sub
+```
+
 ### zenoh_elixir
 
 Zenoh nodes implemented in Elixir :-
