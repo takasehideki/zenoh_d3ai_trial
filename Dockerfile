@@ -32,16 +32,16 @@ RUN pip install -U pip && \
 
 # Install Zenoh-c
 RUN apt-get update && apt-get install -y \
-	cmake git \
-	&& apt-get clean \
-	&& rm -rf /var/lib/apt/lists/*
+  cmake git \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 RUN git clone https://github.com/eclipse-zenoh/zenoh-c.git /usr/local/src/zenoh-c \
-	&& mkdir -p /usr/local/src/zenoh-c/build \
-	&& cd /usr/local/src/zenoh-c/build \
-	&& cmake .. \
-	&& PATH=$PATH:/root/.cargo/bin cmake --build . --config Release \
-	&& cmake --build . --target install \
-	&& rm -rf /usr/local/src/zenoh-c
+  && mkdir -p /usr/local/src/zenoh-c/build \
+  && cd /usr/local/src/zenoh-c/build \
+  && cmake .. \
+  && PATH=$PATH:/root/.cargo/bin cmake --build . --config Release \
+  && cmake --build . --target install \
+  && rm -rf /usr/local/src/zenoh-c
 
 # Install Erlang
 RUN apt-get update && apt-get install -y \
