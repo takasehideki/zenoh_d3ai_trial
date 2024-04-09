@@ -141,7 +141,7 @@ iex()> ZenohElixir.Sub.main
 
 ## Communication with cloud
 
-Let's connect to the cloud with zenoh!
+Let's connect to the cloud with Zenoh!
 
 ### Preliminary
 
@@ -181,6 +181,32 @@ zenohd -e tcp/<cloud_ip_or_url>:7447
 docker exec -it zenoh_d3ai_trial /bin/bash
 python3 zenoh_python/pub.py
 ```
+
+## zenoh-pico: From device to the cloud!
+
+Embedded devices can also communicate to the cloud with Zenoh!
+
+The source code for zenoh-pico app is referred to the following under EPL-2.0 OR Apache-2.0 license.
+ https://github.com/eclipse-zenoh/zenoh-pico/tree/main/examples/arduino
+
+### Preliminary
+
+Please install VS Code and its PlatformIO extension on the host.  
+https://docs.platformio.org/en/latest/integration/ide/vscode.html#ide-vscode
+
+This example uses [M5Stack CoreS3](https://docs.m5stack.com/en/core/CoreS3) as the example.
+You may change the setting in platformio.ini when using other boards.
+Also, this example assumes that the Phoenix server has been deployed according to the previous section.
+
+### Operation
+
+- Open `zenoh_pico/` directory as the PlatformIO Project
+- Edit `src/main.cpp` to adjust your environment
+  - `SSID` and `PASS` in L13-14 for Wi-Fi AP
+  - `CONNECT` in L19 for cloud IP or URL and port, e.g., `tcp/hoge.janaeast.cloudapp.azure.com:7447`
+- Change the setting in `platformio.ini` if needed
+- Build and Upload to the board
+- Start the device to communicate with the cloud!
 
 What happens??
 No problem,,, I cannot understand that :D
