@@ -28,6 +28,17 @@
 z_owned_publisher_t pub;
 static int idx = 0;
 
+void data_handler(const z_sample_t *sample, void *arg)
+{
+  z_owned_str_t keystr = z_keyexpr_to_string(sample->keyexpr);
+  std::string val((const char *)sample->payload.start, sample->payload.len);
+
+  Serial.print("[sub.pico] ");
+  Serial.println(val.c_str());
+
+  z_str_drop(z_str_move(&keystr));
+}
+
 void setup()
 {
   // Initialize Serial for debug
@@ -86,8 +97,25 @@ void setup()
     }
   }
   Serial.println("OK");
-  Serial.println("Zenoh setup finished!");
 
+  // Declare Zenoh subscriber
+  Serial.print("Declaring Subscriber on ");
+  Serial.print(KEYEXPR);
+  Serial.println(" ...");
+  z_owned_closure_sample_t callback = z_closure_sample(data_handler, NULL, NULL);
+  z_owned_subscriber_t sub =
+      z_declare_subscriber(z_session_loan(&s), z_keyexpr(KEYEXPR), z_closure_sample_move(&callback), NULL);
+  if (!z_subscriber_check(&sub))
+  {
+    Serial.println("Unable to declare subscriber.");
+    while (1)
+    {
+      ;
+    }
+  }
+  Serial.println("OK");
+
+  Serial.println("Zenoh setup finished!");
   delay(300);
 }
 
