@@ -4,6 +4,7 @@
  */
 
 #include <Arduino.h>
+#include <M5Unified.h>
 #include <WiFi.h>
 #include <BluetoothSerial.h>
 #include <zenoh-pico.h>
@@ -27,6 +28,7 @@
 
 z_owned_publisher_t pub;
 static int idx = 0;
+static char display_text[1024];
 
 void data_handler(const z_sample_t *sample, void *arg)
 {
@@ -36,11 +38,26 @@ void data_handler(const z_sample_t *sample, void *arg)
   Serial.print("[sub.pico] ");
   Serial.println(val.c_str());
 
+  // Print message history on M5 Display
+  char display_text_tmp[1024];
+  snprintf(display_text_tmp, 1024, "%s", display_text);
+  snprintf(display_text, 1024, "%s\n%s", val.c_str(), display_text_tmp);
+  M5.Display.clear();
+  M5.Display.startWrite();
+  M5.Display.setCursor(0, 0);
+  M5.Display.print(display_text);
+  M5.Display.endWrite();
+
   z_str_drop(z_str_move(&keystr));
 }
 
 void setup()
 {
+  // Initialize M5 Display
+  auto cfg = M5.config();
+  M5.begin(cfg);
+  M5.Display.setTextSize(2);
+
   // Initialize Serial for debug
   Serial.begin(115200);
   while (!Serial)
@@ -116,7 +133,12 @@ void setup()
   Serial.println("OK");
 
   Serial.println("Zenoh setup finished!");
-  delay(300);
+  M5.Display.startWrite();
+  M5.Display.setCursor(0, 0);
+  M5.Display.print("Zenoh setup finished!");
+  M5.Display.endWrite();
+
+  delay(1000);
 }
 
 void loop()
