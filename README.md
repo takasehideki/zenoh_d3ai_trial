@@ -138,3 +138,49 @@ cd zenoh_elixir
 iex -S mix
 iex()> ZenohElixir.Sub.main
 ```
+
+## Communication with cloud
+
+Let's connect to the cloud with zenoh!
+
+### Preliminary
+
+Please prepare the cloud environment as the example for Azure VM.
+
+- Deploy the Ubuntu 22.04 LTS instance as [the follow](https://qiita.com/t_ymgt/items/0c473f73cfe4794a8036) except for http and https accesses.
+- Add the connection rules
+  - send port 4000 for Phoenix
+  - both send and receive ports 7447 for Zenoh
+- Install Erlang/OTP 26.1.1 and Elixir 1.15.7
+
+### Operation
+
+On the cloud side, please deploy the following Phoenix project (`d3ai_demo` branch for now).  
+https://github.com/b5g-ex/zenohex_phoenix_demo/tree/d3ai_demo
+
+- 1st terminal: deploy Phoenix server
+```
+git clone -b d3ai_demo https://github.com/b5g-ex/zenohex_phoenix_demo
+### start Phoenix server according to README
+mix phx.server
+```
+- 2nd terminal: operate zenohd
+```
+zenohd
+```
+
+On the local side (your laptop), operate zenohd in the container, and then you can operate any pub/sub zenoh nodes!
+
+- 3rd terminal: operate zenohd
+```
+docker exec -it zenoh_d3ai_trial /bin/bash
+zenohd -e tcp/<cloud_ip_or_url>:7447
+```
+- 4th terminal: Python subscriber (e.g.)
+```
+docker exec -it zenoh_d3ai_trial /bin/bash
+python3 zenoh_python/pub.py
+```
+
+What happens??
+No problem,,, I cannot understand that :D
