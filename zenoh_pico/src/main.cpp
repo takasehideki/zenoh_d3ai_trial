@@ -29,51 +29,51 @@
 z_owned_publisher_t pub;
 static int idx = 0;
 static char display_text[1024];
+void print_message(String msg);
 
 void data_handler(const z_sample_t *sample, void *arg)
 {
   z_owned_str_t keystr = z_keyexpr_to_string(sample->keyexpr);
   std::string val((const char *)sample->payload.start, sample->payload.len);
 
+  // only print on Serial
   Serial.print("[sub.pico] ");
-  Serial.println(val.c_str());
 
-  // Print message history on M5 Display
-  char display_text_tmp[1024];
-  snprintf(display_text_tmp, 1024, "%s", display_text);
-  snprintf(display_text, 1024, "%s\n%s", val.c_str(), display_text_tmp);
-  M5.Display.clear();
-  M5.Display.startWrite();
-  M5.Display.setCursor(0, 0);
-  M5.Display.print(display_text);
-  M5.Display.endWrite();
+  String msg;
+  msg.concat(val.c_str());
+  print_message(msg);
 
   z_str_drop(z_str_move(&keystr));
 }
 
 void setup()
 {
-  // Initialize M5 Display
-  auto cfg = M5.config();
-  M5.begin(cfg);
-  M5.Display.setTextSize(2);
-
-  // Initialize Serial for debug
+  // Initialize Serial port
   Serial.begin(115200);
   while (!Serial)
   {
     delay(1000);
   }
 
+  // Initialize M5 Display
+  auto cfg = M5.config();
+  M5.begin(cfg);
+  M5.Display.setTextSize(2);
+
+  print_message("Initialization OK");
+  delay(8000);
+
+  print_message("Zenoh setup start,,,");
+
   // Set WiFi in STA mode and trigger attachment
-  Serial.print("Connecting to WiFi...");
+  print_message("Connecting to WiFi...");
   WiFi.mode(WIFI_STA);
   WiFi.begin(SSID, PASS);
   while (WiFi.status() != WL_CONNECTED)
   {
     delay(1000);
   }
-  Serial.println("OK");
+  print_message("OK");
 
   // Initialize Zenoh Session and other parameters
   z_owned_config_t config = z_config_default();
@@ -84,61 +84,59 @@ void setup()
   }
 
   // Open Zenoh session
-  Serial.print("Opening Zenoh Session...");
+  print_message("Opening Zenoh Session...");
   z_owned_session_t s = z_open(z_config_move(&config));
   if (!z_session_check(&s))
   {
-    Serial.println("Unable to open session!");
+    print_message("Unable to open session!");
     while (1)
     {
       ;
     }
   }
-  Serial.println("OK");
+  print_message("OK");
 
   // Start the receive and the session lease loop for zenoh-pico
   zp_start_read_task(z_session_loan(&s), NULL);
   zp_start_lease_task(z_session_loan(&s), NULL);
 
   // Declare Zenoh publisher
-  Serial.print("Declaring publisher for ");
-  Serial.print(KEYEXPR);
-  Serial.println("...");
+  String msg;
+  msg.concat("Declaring publisher for ");
+  msg.concat(KEYEXPR);
+  msg.concat("...");
+  print_message(msg);
   pub = z_declare_publisher(z_session_loan(&s), z_keyexpr(KEYEXPR), NULL);
   if (!z_publisher_check(&pub))
   {
-    Serial.println("Unable to declare publisher for key expression!");
+    print_message("Unable to declare publisher for key expression!");
     while (1)
     {
       ;
     }
   }
-  Serial.println("OK");
+  print_message("OK");
 
   // Declare Zenoh subscriber
-  Serial.print("Declaring Subscriber on ");
-  Serial.print(KEYEXPR);
-  Serial.println(" ...");
+  msg = "";
+  msg.concat("Declaring subscriber on ");
+  msg.concat(KEYEXPR);
+  msg.concat("...");
+  print_message(msg);
   z_owned_closure_sample_t callback = z_closure_sample(data_handler, NULL, NULL);
   z_owned_subscriber_t sub =
       z_declare_subscriber(z_session_loan(&s), z_keyexpr(KEYEXPR), z_closure_sample_move(&callback), NULL);
   if (!z_subscriber_check(&sub))
   {
-    Serial.println("Unable to declare subscriber.");
+    print_message("Unable to declare subscriber.");
     while (1)
     {
       ;
     }
   }
-  Serial.println("OK");
+  print_message("OK");
 
-  Serial.println("Zenoh setup finished!");
-  M5.Display.startWrite();
-  M5.Display.setCursor(0, 0);
-  M5.Display.print("Zenoh setup finished!");
-  M5.Display.endWrite();
-
-  delay(1000);
+  print_message("Zenoh setup finished!");
 }
 
 void loop()
@@ -146,6 +144,7 @@ void loop()
   delay(1000);
   char buf[256];
   sprintf(buf, "Hello from pico!! %d", idx++);
+  /* do not print on Display */
   Serial.print("[pub.pico] ");
   Serial.println(buf);
 
@@ -153,6 +152,21 @@ void loop()
   options.encoding = z_encoding(Z_ENCODING_PREFIX_TEXT_PLAIN, NULL);
   if (z_publisher_put(z_publisher_loan(&pub), (const uint8_t *)buf, strlen(buf), &options))
   {
-    Serial.println("Error while publishing data");
+    print_message("Error while publishing data");
   }
+}
+
+void print_message(String msg)
+{
+  Serial.println(msg);
+
+  // Print message history on M5 Display
+  char display_text_tmp[1024];
+  snprintf(display_text_tmp, 1024, "%s", display_text);
+  snprintf(display_text, 1024, "%s\n%s", msg.c_str(), display_text_tmp);
+  M5.Display.clear();
+  M5.Display.startWrite();
+  M5.Display.setCursor(0, 0);
+  M5.Display.print(display_text);
+  M5.Display.endWrite();
 }
