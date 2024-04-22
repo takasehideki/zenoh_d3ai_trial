@@ -186,8 +186,14 @@ python3 zenoh_python/pub.py
 
 Embedded devices can also communicate to the cloud with Zenoh!
 
-The source code for zenoh-pico app is referred to the following under EPL-2.0 OR Apache-2.0 license.
- https://github.com/eclipse-zenoh/zenoh-pico/tree/main/examples/arduino
+The source code for zenoh-pico app is referred to the following under EPL-2.0 OR Apache-2.0 license.  
+https://github.com/eclipse-zenoh/zenoh-pico/tree/main/examples/arduino
+
+Currently, we confirmed its operation on the following boards.
+
+- M5Stack CoreS3
+- M5Stack BASIC
+- M5Stack AtomS3
 
 ### Preliminary
 
